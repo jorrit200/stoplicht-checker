@@ -1,0 +1,30 @@
+﻿{
+  "buildOptions": {
+    "incremental": true
+  },
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "strict": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "ts-node": {
+    "require": [
+    ],
+    "files": true
+  },
+  "typeAcquisition": {
+    "enable": true
+  },
+  "watchOptions": {
+    "watchFile": "dynamicPriorityPolling"
+  }
+}
