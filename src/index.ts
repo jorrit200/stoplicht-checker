@@ -2,18 +2,6 @@
 import {ZMQSubCheckerBinder} from "./ZMQSubCheckerBinder";
 
 
-
-// 2. Check that all mandatory fields are present.
-// Assumes required fields are "id" and "state".
-function checkMandatoryFields(message: any): boolean {
-    if (!message) return false;
-    if (!("id" in message) || !("state" in message)) {
-        console.error("checkMandatoryFields: Missing required 'id' and/or 'state' field");
-        return false;
-    }
-    return true;
-}
-
 // 3. Check that the identifier is in the proper "g.l" format.
 // Adjust the regex as needed if letters and/or numbers are allowed.
 function checkIdentifierFormat(message: any): boolean {
