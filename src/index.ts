@@ -1,36 +1,51 @@
 ﻿import {Subscriber} from "zeromq";
-import {ZMQSubCheckerBinder} from "./ZMQSubCheckerBinder";
+import {TopicCheckerResult, ZMQSubCheckerBinder} from "./ZMQSubCheckerBinder";
+import {LogConclusionAsMarkDown} from "./LogConclusionAsMarkDown";
 
-
-// 3. Check that the identifier is in the proper "g.l" format.
-// Adjust the regex as needed if letters and/or numbers are allowed.
-function checkIdentifierFormat(message: any): boolean {
-    if (!message) return false;
+const checkIdentifierFormat = (message: any): TopicCheckerResult => {
     const idPattern = /^[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/;
+
+    let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
+
+    const messageKeysLength = Object.keys(message).length
 
     for (const key in message) {
         if (!idPattern.test(key)) {
-            console.error(`checkIdentifierFormat: key: ${key} does not match the 'g.l' format`);
-        } else {
-            console.log(`checkIdentifierFormat: key: ${key} DOES match the 'g.l' format`);
+            result.isOk = false;
+            result.feedback.push(`key: ${key} voldoet niet aan het 'g.l' format. Waar 'g' voor group staat en 'l' voor lane`);
         }
     }
 
-
-    return true;
-}
-
-// 4. Check that the traffic light state is one of the allowed values.
-function checkValidState(message: any): boolean {
-    if (!message) return false;
-    const validStates = ["groen", "oranje", "rood"];
-    for (const key in message) {
-        const pass = validStates.includes(message[key]);
-        if (!pass) {return false}
+    if (result.feedback.length > messageKeysLength/2) {
+        result.feedback = ["De meeste keys voldoen niet aan het 'g.l' format. Waar 'g' voor group staat en 'l' voor lane."];
     }
-    return true;
+    return result;
 }
 
+const checkValidValues = (message: { [key: string]: "rood" | "groen" | "oranje" }): TopicCheckerResult => {
+    const validStates = ["groen", "oranje", "rood"];
+    let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
+
+    const messageKeyLength = Object.keys(message).length;
+    for (const key in message) {
+        const value = message[key];
+        const pass = validStates.includes(value);
+        if (!pass) {
+            result.isOk = false;
+            result.feedback.push(`Key: ${key} Value: ${value} is niet één van ["rood", "oranje", "groen"]. Check voor spelfouten en NL/EN.`)
+        }
+    }
+
+    if (result.feedback.length > (messageKeyLength / 2)) {
+        result.feedback = ['De meeste values zijn niet één van ["rood", "oranje", "groen"].']
+    }
+
+    if (result.feedback.length > messageKeyLength) {
+        result.feedback = ['De values voldoen niet aan de requirement: ["rood", "oranje", "groen"].']
+    }
+
+    return result;
+}
 
 async function run() {
     const sub = new Subscriber();
@@ -39,16 +54,18 @@ async function run() {
     const binder = new ZMQSubCheckerBinder(sub);
 
     binder.bind("stoplichten", {
-        checker: checkIdentifierFormat,
-        name: "Identifier Format Check"
+        checksFor: "protocol",
+        method: checkIdentifierFormat
     });
 
     binder.bind("stoplichten", {
-        checker: checkValidState,
-        name: "Valid State Check"
+        checksFor: "protocol",
+        method: checkValidValues,
     });
 
-    await binder.run();
+    await binder.run({
+        resultOutput: LogConclusionAsMarkDown
+    });
 }
 
 run().then(() => console.log("done"));
