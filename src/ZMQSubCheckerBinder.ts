@@ -1,17 +1,16 @@
 ﻿import {Subscriber} from "zeromq";
 
 
-
 export class ZMQSubCheckerBinder {
     private readonly sub: Subscriber
 
-    private bindings = new Map<string, TopicChecker[]>();
+    private bindings = new Map<string, TopicChecker<any>[]>();
 
     constructor(sub: Subscriber) {
         this.sub = sub
     }
 
-    public bind(topic: string, checker: TopicChecker) {
+    public bind(topic: string, checker: TopicChecker<any>) {
         if (this.bindings.has(topic)) {
             const boundCheckers = this.bindings.get(topic)
             if (boundCheckers === undefined) {
@@ -24,12 +23,20 @@ export class ZMQSubCheckerBinder {
         }
     }
 
-    public async run() {
+    public async run({resultOutput}: {resultOutput: (conclusion: TopicCheckerConclusion) => void} = {resultOutput: console.log}) {
         this.sub.subscribe(...this.bindings.keys())
 
         for await (const [topic, msg] of this.sub) {
+
+
             const topicStr = topic.toString()
-            const msgObj = JSON.parse(msg.toString())
+            let msgObj
+            try {
+                msgObj = JSON.parse(msg.toString())
+            } catch (e) {
+                console.error(e)
+                continue
+            }
 
             const boundCheckers = this.bindings.get(topicStr)
 
@@ -38,16 +45,40 @@ export class ZMQSubCheckerBinder {
                 continue
             }
 
-            boundCheckers.forEach(checker => {
-                const result = checker.checker(msgObj)
-                console.log(checker.name, ": ", result ? "YIPPEEE": "OHNO")
-            })
+            const resultArr = boundCheckers.map(checker => {
+                return {
+                    checker: checker,
+                    result: checker.method(msgObj)
+                }
+            });
+
+            const conclusion: TopicCheckerConclusion = {
+                topic: topicStr,
+                message: msgObj,
+                results: resultArr,
+                timestamp: Date.now()
+            }
+
+            resultOutput(conclusion)
         }
     }
 }
 
-export interface TopicChecker
-{
-    checker: (message: {}) => boolean,
-    name: string
+export interface TopicChecker<TIn> {
+    method: (message: TIn) => TopicCheckerResult,
+    checksFor: "protocol" | "intention"
+}
+
+export type TopicCheckerResult = {
+    isOk: true
+} | {
+    isOk: false
+    feedback: string[]
+}
+
+export interface TopicCheckerConclusion {
+    topic: string,
+    message: {},
+    results: {checker: TopicChecker<any>, result: TopicCheckerResult}[],
+    timestamp: number
 }
