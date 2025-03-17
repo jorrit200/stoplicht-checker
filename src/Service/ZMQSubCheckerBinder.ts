@@ -66,7 +66,8 @@ export class ZMQSubCheckerBinder {
 
 export interface TopicChecker<TIn> {
     method: (message: TIn) => TopicCheckerResult,
-    checksFor: "protocol" | "intention"
+    checksFor: "protocol" | "intention",
+    "description": string,
 }
 
 export type TopicCheckerResult = {
