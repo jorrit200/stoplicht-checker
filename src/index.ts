@@ -17,7 +17,7 @@ async function run() {
     sub.connect("tcp://127.0.0.1:5556");
 
     let binder = new ZMQSubCheckerBinder(sub);
-    binder = bindStoplichtTopicProtocol(binder)
+    binder = bindStoplichtTopicProtocol(binder, trafficData)
 
     await binder.run({
         resultOutput: LogConclusionAsMarkDown
