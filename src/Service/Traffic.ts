@@ -20,6 +20,14 @@ export class TrafficLightId {
         this._lane = lane;
     }
 
+    public static fromString(string: string): TrafficLightId {
+        const validIdRegex = /^([1-9]+)\.([1-9]+)$/
+        let match = string.match(validIdRegex);
+        if (!match) {throw new Error("Invalid string to generate trafficLightId");}
+        const [_, groupStr, laneStr] = match;
+        return new TrafficLightId(Number.parseInt(groupStr), Number.parseInt(laneStr))
+    }
+
     get group() {return this._group}
     get lane() {return this._lane}
 
