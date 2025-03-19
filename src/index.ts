@@ -1,5 +1,5 @@
 ﻿import {Subscriber} from "zeromq";
-import {TopicCheckerResult, ZMQSubCheckerBinder} from "./Service/ZMQSubCheckerBinder";
+import {ZMQSubCheckerBinder} from "./Service/ZMQSubCheckerBinder";
 import {LogConclusionAsMarkDown} from "./Loggers/LogConclusionAsMarkDown";
 import {TrafficData} from "./Data/TrafficData";
 import {bindStoplichtTopicProtocol} from "./Checkers/stoplichten";
