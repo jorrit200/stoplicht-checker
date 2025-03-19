@@ -51,7 +51,7 @@ const useIdentiteitIsErkend = (trafficData: TrafficData) => {
         let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
 
         const messageKeyLength = Object.keys(message).length;
-        const acknowledgedTrafficLightKeys = getTrafficLightFullIds(trafficData)// todo: omzetten naar valide stoplicht ids: `g.l` inpv `g`
+        const acknowledgedTrafficLightKeys = getTrafficLightFullIds(trafficData)
         for (const key in message) {
             if (!acknowledgedTrafficLightKeys.includes(key)) {
                 console.log(key, acknowledgedTrafficLightKeys)
