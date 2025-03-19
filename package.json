@@ -1,0 +1,36 @@
+{
+  "name": "stoplicht-checker",
+  "version": "1.0.0",
+  "description": "Ik check die stoplicht... makker, met regressie btw.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "run": "node dist/index.js",
+    "dev": "nodemon --ext ts --exec ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jorrit200/stoplicht-checker.git"
+  },
+  "keywords": [
+    "regressie",
+    "tester",
+    "stoplicht",
+    "verkeer"
+  ],
+  "author": "NHLStenden/StoplichOpdr/Y2025/groep6",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jorrit200/stoplicht-checker/issues"
+  },
+  "homepage": "https://github.com/jorrit200/stoplicht-checker#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "zeromq": "^6.3.0"
+  }
+}
