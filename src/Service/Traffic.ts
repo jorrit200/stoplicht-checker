@@ -1,9 +1,29 @@
-﻿import {TrafficData} from "../Data/TrafficData";
+﻿import {TrafficData, TrafficLightGroup, TrafficLightLane} from "../Data/TrafficData";
 
 export class Traffic {
-    private _data: TrafficData
+    private readonly _data: TrafficData
 
     constructor(data: TrafficData) {
+        this._data = data
+    }
+}
+
+export class TrafficGroup {
+    private readonly _id: number
+    private readonly _data: TrafficLightGroup
+
+    constructor(groupId: number, data: TrafficLightGroup) {
+        this._id = groupId;
+        this._data = data
+    }
+}
+
+export class TrafficLane {
+    private readonly _id: TrafficLightId
+    private readonly _data: TrafficLightLane
+
+    constructor(id: TrafficLightId, data: TrafficLightLane) {
+        this._id = id;
         this._data = data
     }
 }
@@ -14,7 +34,7 @@ export class TrafficLightId {
 
     constructor(group: number, lane: number) {
         if (!Number.isInteger(group) || !Number.isInteger(lane)) {
-            throw new Error("traffic-light id exist of 2 ints");
+            throw new Error("traffic-light id exist of 2 int's");
         }
         this._group = group;
         this._lane = lane;
