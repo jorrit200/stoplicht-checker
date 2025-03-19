@@ -1,4 +1,4 @@
-﻿import {TopicCheckerResult, ZMQSubCheckerBinder} from "../Service/ZMQSubCheckerBinder";
+﻿import {TopicChecker, TopicCheckerResult, ZMQSubCheckerBinder} from "../Service/ZMQSubCheckerBinder";
 import {getTrafficLightFullIds, TrafficData} from "../Data/TrafficData";
 
 const identiteitFormaat = (message: any): TopicCheckerResult => {
@@ -93,6 +93,14 @@ const useAlleErkendeKeysZijnInbegrepen = (trafficData: TrafficData) => {
         return result
     }
     return alleErkendeKeysZijnInbegrepen
+}
+
+const useGeenIntersectiesTussenVerkeerslichten = (trafficData: TrafficData) => {
+    const geenIntersectiesTussenVerkeerslichten =  (message: { [key: string]: "rood" | "groen" | "oranje" }): TopicCheckerResult => {
+        let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
+        
+
+    }
 }
 
 
