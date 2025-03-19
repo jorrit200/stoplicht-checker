@@ -11,9 +11,6 @@ export interface TrafficLightGroup {
     lanes: [keyof string, TrafficLightLane],
     is_physical_barrier: boolean,
 }
-export const getTrafficLightFullIds = (trafficData: TrafficData): string[] => {
-    return Object.keys(trafficData.groups).flatMap(g => Object.keys(trafficData.groups[g].lanes).map(l => `${g}.${l}`))
-}
 
 export interface TrafficLightLane {
     is_inverse_of: string|undefined,
