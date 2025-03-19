@@ -1,15 +1,27 @@
 ﻿import {Subscriber} from "zeromq";
 
-
+/**
+ * This is a class that helps to assign isolated tests to ZeroMQ topics.
+ * Connect different tests to topics first, then run the tester.
+ * This class wraps the ZeroMQ subscriber.
+ */
 export class ZMQSubCheckerBinder {
     private readonly sub: Subscriber
-
     private bindings = new Map<string, TopicChecker<any>[]>();
 
+    /**
+     * Maker a tester from this subscriber
+     * @param sub The subscriber to turn into a tester. Warning: this subscriber will lose any topics its already subscribed to.
+     */
     constructor(sub: Subscriber) {
         this.sub = sub
     }
 
+    /**
+     * Bind a checker to a topic.
+     * @param topic The topic to bind to.
+     * @param checker The check to execute for each message on the topic.
+     */
     public bind(topic: string, checker: TopicChecker<any>) {
         if (this.bindings.has(topic)) {
             const boundCheckers = this.bindings.get(topic)
@@ -23,6 +35,10 @@ export class ZMQSubCheckerBinder {
         }
     }
 
+    /**
+     * Start running this binder. (for now there is no way to gracefully stop this...)
+     * @param resultOutput a function that takes the results of all tests on a message. Useful for logging results.
+     */
     public async run({resultOutput}: {resultOutput: (conclusion: TopicCheckerConclusion) => void} = {resultOutput: console.log}) {
         this.sub.subscribe(...this.bindings.keys())
 
@@ -64,12 +80,32 @@ export class ZMQSubCheckerBinder {
     }
 }
 
+/**
+ * An isolated check to judge the correctness of a message.
+ */
 export interface TopicChecker<TIn> {
+    /**
+     * The actual method that executes the check
+     * @param message message gets passed by the binder, and is a JSON-parsed version of the raw data in the ZeroMQ message.
+     */
     method: (message: TIn) => TopicCheckerResult,
+
+    /**
+     * Whether the check checks for an actual protocol violation or just for likely unintended state.
+     */
     checksFor: "protocol" | "intention",
+
+    /**
+     * A human-readable description of the task, what it checks for, and why.
+     */
     "description": string,
 }
 
+/**
+ * The result of a check.
+ * It contains whether the check passed,
+ * and some human-readable strings that provide feedback to the programmer who sends the messages.
+ */
 export type TopicCheckerResult = {
     isOk: true
 } | {
@@ -77,9 +113,27 @@ export type TopicCheckerResult = {
     feedback: string[]
 }
 
+/**
+ * A collection of all the checker results for a single message.
+ */
 export interface TopicCheckerConclusion {
+    /**
+     * The topic the message was sent over.
+     */
     topic: string,
+
+    /**
+     * The JSON-parsed message.
+     */
     message: {},
+
+    /**
+     * The results of each individual check.
+     */
     results: {checker: TopicChecker<any>, result: TopicCheckerResult}[],
+
+    /**
+     * The time at which the message was parsed.
+     */
     timestamp: number
 }

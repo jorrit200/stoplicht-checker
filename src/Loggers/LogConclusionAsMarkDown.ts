@@ -2,6 +2,10 @@
 import {promises as fs} from 'fs';
 import * as path from 'path';
 
+/**
+ * Takes message conclusions, and writes MarkdDownFiles
+ * @param conclusion Passed by binder.
+ */
 export const LogConclusionAsMarkDown = async (conclusion: TopicCheckerConclusion): Promise<void> => {
     const output = `./output/${conclusion.topic}/${conclusion.timestamp}.md`
     const outputDir = path.dirname(output);
