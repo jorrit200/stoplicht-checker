@@ -1,6 +1,6 @@
 ﻿export interface TrafficData {
-    groups: [keyof string, TrafficLightGroup],
-    sensors: [keyof string, Sensor]
+    groups: Record<string, TrafficLightGroup>,
+    sensors: Record<string, Sensor>
 }
 
 export interface TrafficLightGroup {
@@ -10,6 +10,9 @@ export interface TrafficLightGroup {
     vehicle_type: Vehicle[],
     lanes: [keyof string, TrafficLightLane],
     is_physical_barrier: boolean,
+}
+export const getTrafficLightFullIds = (trafficData: TrafficData): string[] => {
+    return Object.keys(trafficData.groups).flatMap(g => Object.keys(trafficData.groups[g].lanes).map(l => `${g}.${l}`))
 }
 
 export interface TrafficLightLane {
