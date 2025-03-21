@@ -7,10 +7,23 @@ export class Traffic {
         this._data = data
     }
 
-    getAllIds() {
+    getAllIds(): string[] {
         return Object.keys(this._data.groups)
             .flatMap((g) => Object.keys(this._data.groups[g].lanes)
                 .map(l => `${g}.${l}`))
+    }
+
+    getGroup(id: number): TrafficGroup {
+        return new TrafficGroup(id, this._data.groups[id])
+    }
+
+    getIntersects(ids: number[]): Record<number, number[]> {
+        const ingoingGroups = [...new Set(ids)]
+        let results: Record<number, number[]> = {}
+        ingoingGroups.forEach(i => results[i] = this.getGroup(i)
+            .getIntersects()
+            .filter(intersect => ingoingGroups.includes(intersect)))
+        return results
     }
 }
 
@@ -21,6 +34,10 @@ export class TrafficGroup {
     constructor(groupId: number, data: TrafficLightGroup) {
         this._id = groupId;
         this._data = data
+    }
+
+    getIntersects(): number[] {
+        return this._data.intersects_with
     }
 }
 

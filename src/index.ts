@@ -3,6 +3,7 @@ import {ZMQSubCheckerBinder} from "./Service/ZMQSubCheckerBinder";
 import {LogConclusionAsMarkDown} from "./Loggers/LogConclusionAsMarkDown";
 import {TrafficData} from "./Data/TrafficData";
 import {bindStoplichtTopicProtocol} from "./Checkers/stoplichten";
+import {Traffic} from "./Service/Traffic";
 
 async function run() {
     console.log("Verkeer data inladen...");
@@ -17,7 +18,7 @@ async function run() {
     sub.connect("tcp://127.0.0.1:5556");
 
     let binder = new ZMQSubCheckerBinder(sub);
-    binder = bindStoplichtTopicProtocol(binder, trafficData)
+    binder = bindStoplichtTopicProtocol(binder, new Traffic(trafficData))
 
     await binder.run({
         resultOutput: LogConclusionAsMarkDown
