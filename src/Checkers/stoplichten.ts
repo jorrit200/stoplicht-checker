@@ -1,5 +1,6 @@
 ﻿import {TopicChecker, TopicCheckerResult, ZMQSubCheckerBinder} from "../Service/ZMQSubCheckerBinder";
-import {getTrafficLightFullIds, TrafficData} from "../Data/TrafficData";
+import {TrafficData} from "../Data/TrafficData";
+import {Traffic} from "../Service/Traffic";
 
 const identiteitFormaat = (message: any): TopicCheckerResult => {
     const idPattern = /^[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/;
@@ -46,15 +47,14 @@ const valideWaardes = (message: { [key: string]: "rood" | "groen" | "oranje" }):
     return result;
 }
 
-const useIdentiteitIsErkend = (trafficData: TrafficData) => {
+const useIdentiteitIsErkend = (traffic: Traffic) => {
     const identiteitIsErkend = (message: { [key: string]: "rood" | "groen" | "oranje" }): TopicCheckerResult => {
         let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
 
         const messageKeyLength = Object.keys(message).length;
-        const acknowledgedTrafficLightKeys = getTrafficLightFullIds(trafficData)
+        const acknowledgedTrafficLightKeys = traffic.getAllIds()
         for (const key in message) {
             if (!acknowledgedTrafficLightKeys.includes(key)) {
-                console.log(key, acknowledgedTrafficLightKeys)
                 result.isOk = false;
                 result.feedback.push(`Key: ${key} wordt niet erkend als een bestaand stoplicht volgens het protocol.`)
             }
@@ -70,11 +70,13 @@ const useIdentiteitIsErkend = (trafficData: TrafficData) => {
     return identiteitIsErkend
 }
 
-const useAlleErkendeKeysZijnInbegrepen = (trafficData: TrafficData) => {
-    const alleErkendeKeysZijnInbegrepen = (message: { [key: string]: "rood" | "groen" | "oranje" }): TopicCheckerResult => {
+const useAlleErkendeKeysZijnInbegrepen = (traffic: Traffic) => {
+    const alleErkendeKeysZijnInbegrepen = (message: {
+        [key: string]: "rood" | "groen" | "oranje"
+    }): TopicCheckerResult => {
         let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
 
-        const acknowledgedTrafficLightKeys = getTrafficLightFullIds(trafficData)
+        const acknowledgedTrafficLightKeys = traffic.getAllIds()
         const messageKeys = Object.keys(message);
         for (const key of acknowledgedTrafficLightKeys) {
             if (!messageKeys.includes(key)) {
@@ -83,7 +85,7 @@ const useAlleErkendeKeysZijnInbegrepen = (trafficData: TrafficData) => {
             }
         }
 
-        if (result.feedback.length > acknowledgedTrafficLightKeys.length/2) {
+        if (result.feedback.length > acknowledgedTrafficLightKeys.length / 2) {
             result.feedback = ["De meeste stoplicht ids zijn niet meegegeven. Raadpleeg <a href='https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Brug_verkeerslichten.png'>Brug_verkeerslichten.png</a> en <a href='https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Kruispunt_verkeerslichten.png'>Kruispunt_verkeerslichten.png</a> voor een overzicht van de stoplicht ids die erkend worden door het protocol. Het protocol eist dat een bericht de volledige status van een topic bevat, dus moeten al deze ids meegegeven worden als keys."]
         }
 
@@ -95,16 +97,34 @@ const useAlleErkendeKeysZijnInbegrepen = (trafficData: TrafficData) => {
     return alleErkendeKeysZijnInbegrepen
 }
 
-const useGeenIntersectiesTussenVerkeerslichten = (trafficData: TrafficData) => {
-    const geenIntersectiesTussenVerkeerslichten =  (message: { [key: string]: "rood" | "groen" | "oranje" }): TopicCheckerResult => {
+const useGeenIntersectiesTussenVerkeerslichten = (traffic: Traffic) => {
+    const geenIntersectiesTussenVerkeerslichten = (message: {
+        [key: string]: "rood" | "groen" | "oranje"
+    }): TopicCheckerResult => {
         let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
-        
 
+        const greens = Object.keys(message)
+            .filter(key => message[key] === "groen")
+            .map(key => Number.parseInt(key.split('.')[0]));
+
+        const greensUnique = [...new Set(greens)]
+
+        const greenIntersections = traffic.getIntersects(greensUnique)
+        Object.keys(greenIntersections)
+            .map(key => Number.parseInt(key)) // Object.keys hard returns string[] even though ts knows our record is keyof int
+            .filter(key => greenIntersections[key].length > 0)
+            .forEach(key => {
+                result.isOk = false
+                result.feedback.push(`Je hebt een stoplicht in groep ${key} op groen gezet, maar de groep(en) ${greenIntersections[key].join(',')} hebben een intersectie met deze groep, en staan ook op groen.`)
+            })
+
+        return result
     }
+    return geenIntersectiesTussenVerkeerslichten
 }
 
 
-export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, trafficData: TrafficData): ZMQSubCheckerBinder => {
+export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic): ZMQSubCheckerBinder => {
     binder.bind("stoplichten", {
         checksFor: "protocol",
         description: "Controleert of alle keys in hetzelfde formaat zijn als een stoplicht id. Zoals beschreven in de spec. `g.l`",
@@ -120,13 +140,19 @@ export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, trafficD
     binder.bind("stoplichten", {
         checksFor: "protocol",
         description: "Controleert of de meegeven keys bestaan volgens het protocol. Raadpleeg [Brug_verkeerslichten.png](https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Brug_verkeerslichten.png) en [Kruispunt_verkeerslichten.png](https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Kruispunt_verkeerslichten.png) voor een overzicht van erkende stoplichten",
-        method: useIdentiteitIsErkend(trafficData)
+        method: useIdentiteitIsErkend(traffic)
     })
 
     binder.bind("stoplichten", {
         checksFor: "protocol",
         description: "Contoleer of alle stoplicht ids die erkend worden door de specs, meegeven worden als keys in het bericht. Dit is noodzakelijk omdat het protocol eist dat elk bericht de volledige staat van de toppic mee geeft.",
-        method: useAlleErkendeKeysZijnInbegrepen(trafficData)
+        method: useAlleErkendeKeysZijnInbegrepen(traffic)
+    })
+
+    binder.bind("stoplichten", {
+        checksFor: "intention",
+        description: "Controleert of er geen collisies mogelijk zijn met alle stoplichten die op groen staan",
+        method: useGeenIntersectiesTussenVerkeerslichten(traffic)
     })
 
     return binder
