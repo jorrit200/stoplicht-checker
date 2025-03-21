@@ -46,7 +46,7 @@ export interface TrafficLightGroup {
      * where the key is the lane id (the l in `g.l`)
      * and the object is the information about the lane that differs from the information in the group.
      */
-    lanes: [keyof string, TrafficLightLane],
+    lanes: Record<string, TrafficLightLane>,
 
     /**
      * Whether the traffic-lights in this group represent physical barriers,

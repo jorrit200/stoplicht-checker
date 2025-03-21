@@ -6,6 +6,12 @@ export class Traffic {
     constructor(data: TrafficData) {
         this._data = data
     }
+
+    getAllIds() {
+        return Object.keys(this._data.groups)
+            .flatMap((g) => Object.keys(this._data.groups[g].lanes)
+                .map(l => `${g}.${l}`))
+    }
 }
 
 export class TrafficGroup {
@@ -43,15 +49,22 @@ export class TrafficLightId {
     public static fromString(string: string): TrafficLightId {
         const validIdRegex = /^([1-9]+)\.([1-9]+)$/
         let match = string.match(validIdRegex);
-        if (!match) {throw new Error("Invalid string to generate trafficLightId");}
+        if (!match) {
+            throw new Error("Invalid string to generate trafficLightId");
+        }
         const [_, groupStr, laneStr] = match;
         return new TrafficLightId(Number.parseInt(groupStr), Number.parseInt(laneStr))
     }
 
-    get group() {return this._group}
-    get lane() {return this._lane}
+    get group() {
+        return this._group
+    }
+
+    get lane() {
+        return this._lane
+    }
 
     public toString = (): string => {
         return `${this._group}.${this._lane}`;
-}
+    }
 }
