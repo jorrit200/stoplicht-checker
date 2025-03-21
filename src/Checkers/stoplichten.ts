@@ -121,30 +121,35 @@ const geenIntersectiesTussenVerkeerslichten = (
 
 export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic): ZMQSubCheckerBinder => {
     binder.bind("stoplichten", {
+        name: "Stoplicht ID formaat",
         checksFor: "protocol",
         description: "Controleert of alle keys in hetzelfde formaat zijn als een stoplicht id. Zoals beschreven in de spec. `g.l`",
         method: identiteitFormaat
     });
 
     binder.bind("stoplichten", {
+        name: "Stoplicht waarden geldig",
         checksFor: "protocol",
         description: 'Controleert of alle waardes van de message binnen de mogelijk waardes valt: ["rood", "oranje", "groen"]',
         method: valideWaardes
     });
 
     binder.bind("stoplichten", {
+        name: "Stoplicht ID's bestaan",
         checksFor: "protocol",
         description: "Controleert of de meegeven keys bestaan volgens het protocol. Raadpleeg [Brug_verkeerslichten.png](https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Brug_verkeerslichten.png) en [Kruispunt_verkeerslichten.png](https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Kruispunt_verkeerslichten.png) voor een overzicht van erkende stoplichten",
         method: useTraffic(identiteitIsErkend, traffic)
     })
 
     binder.bind("stoplichten", {
+        name: "Ale erkende stoplicht Ids zijn meegegeven",
         checksFor: "protocol",
         description: "Contoleer of alle stoplicht ids die erkend worden door de specs, meegeven worden als keys in het bericht. Dit is noodzakelijk omdat het protocol eist dat elk bericht de volledige staat van de toppic mee geeft.",
         method: useTraffic(alleErkendeKeysZijnInbegrepen, traffic)
     })
 
     binder.bind("stoplichten", {
+        name: "Intersecties tussen groene stoplichten",
         checksFor: "intention",
         description: "Controleert of er geen collisies mogelijk zijn met alle stoplichten die op groen staan",
         method: useTraffic(geenIntersectiesTussenVerkeerslichten, traffic)

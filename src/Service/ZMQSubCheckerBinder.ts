@@ -91,6 +91,11 @@ export interface TopicChecker<TIn> {
     method: (message: TIn) => TopicCheckerResult,
 
     /**
+     * The name of the check. Used for logging conclusions and self-documentation
+     */
+    name: string
+
+    /**
      * Whether the check checks for an actual protocol violation or just for likely unintended state.
      */
     checksFor: "protocol" | "intention",
