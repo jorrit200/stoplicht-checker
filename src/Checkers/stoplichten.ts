@@ -1,5 +1,4 @@
-﻿import {TopicChecker, TopicCheckerResult, ZMQSubCheckerBinder} from "../Service/ZMQSubCheckerBinder";
-import {TrafficData} from "../Data/TrafficData";
+﻿import {TopicCheckerResult, ZMQSubCheckerBinder} from "../Service/ZMQSubCheckerBinder";
 import {Traffic} from "../Service/Traffic";
 
 const identiteitFormaat = (message: any): TopicCheckerResult => {

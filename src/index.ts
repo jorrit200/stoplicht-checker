@@ -9,7 +9,7 @@ async function run() {
     console.log("Verkeer data inladen...");
     const trafficDataRes = await fetch("https://raw.github.com/jorrit200/stoplicht-communicatie-spec/main/intersectionData/lanes.json")
     if (!trafficDataRes.ok) {
-        throw new Error("Kon de verkeers data niet laden, deze is nodig om sommige protocol eisen te beoordelen")
+        throw new Error("Kon de verkeersdata niet laden, deze is nodig om sommige protocol eisen te beoordelen")
     }
     const trafficData = await trafficDataRes.json() as TrafficData
     console.log("data ingeladen")
