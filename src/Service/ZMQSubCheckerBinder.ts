@@ -47,10 +47,30 @@ export class ZMQSubCheckerBinder {
 
             const topicStr = topic.toString()
             let msgObj
+            let msgStr = msg.toString();
             try {
-                msgObj = JSON.parse(msg.toString())
+                msgObj = JSON.parse(msgStr)
             } catch (e) {
-                console.error(e)
+                const conclusion: TopicCheckerConclusion = {
+                    topic: topicStr,
+                    message: msgStr,
+                    results: [{
+                        checker: {
+                            method: function (message: any): TopicCheckerResult {
+                                throw new Error("Function not implemented.");
+                            },
+                            name: "Parsing",
+                            checksFor: "protocol",
+                            description: ""
+                        },
+                        result: {
+                            isOk: false,
+                            feedback: ["Volgens het protocol moet elk bericht uit valide JSON bestaan"]
+                        }
+                    }],
+                    timestamp: Date.now()
+                }
+                resultOutput(conclusion)
                 continue
             }
 
