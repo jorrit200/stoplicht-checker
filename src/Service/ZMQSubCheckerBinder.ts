@@ -56,7 +56,7 @@ export class ZMQSubCheckerBinder {
                     message: msgStr,
                     results: [{
                         checker: {
-                            method: function (message: any): TopicCheckerResult {
+                            method: function (): TopicCheckerResult {
                                 throw new Error("Function not implemented.");
                             },
                             name: "Parsing",
