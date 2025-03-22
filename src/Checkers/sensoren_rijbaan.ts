@@ -1,9 +1,9 @@
-﻿import {TopicMessageConclusion, TopicCheckerResult, ZMQSubCheckerBinder} from "../Service/ZMQSubCheckerBinder";
+﻿import {TopicCheckerResult, ZMQSubCheckerBinder} from "../Service/ZMQSubCheckerBinder";
 import {Traffic} from "../Service/Traffic";
 import {allIncludedIdsAreKnown, allKnownIdsAreIncluded, trafficLightIdFormat} from "./stoplichten";
 import {useTraffic} from "./modefiers";
 
-export const bindSensorRijbaanTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic): ZMQSubCheckerBinder => {
+export const bindSensorRijbaanTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic) => {
     binder.bind("sensoren_rijbaan", {
         name: "Rijbaan ID formaat",
         checksFor: "protocol",
@@ -38,8 +38,6 @@ export const bindSensorRijbaanTopicProtocol = (binder: ZMQSubCheckerBinder, traf
         description: "",
         method: sensorValues,
     })
-
-    return binder
 }
 
 const sensorKeys = (message: Record<string, {voor: boolean, achter: boolean}>): TopicCheckerResult => {
