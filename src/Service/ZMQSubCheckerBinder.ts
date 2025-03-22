@@ -61,12 +61,9 @@ export class ZMQSubCheckerBinder {
                             },
                             name: "Parsing",
                             checksFor: "protocol",
-                            description: ""
+                            description: "Volgens het protocol moet elke message uit valide json bestaan"
                         },
-                        result: {
-                            isOk: false,
-                            feedback: ["Volgens het protocol moet elk bericht uit valide JSON bestaan"]
-                        }
+                        result: TopicCheckerResult.failed(["Er was een error tijdens het parsen van dit bericht naar JSON"])
                     }],
                     timestamp: Date.now()
                 }
@@ -131,9 +128,34 @@ export interface TopicChecker<TIn> {
  * It contains whether the check passed,
  * and some human-readable strings that provide feedback to the programmer who sends the messages.
  */
-export interface TopicCheckerResult {
-    isOk: boolean
-    feedback: string[]
+export class TopicCheckerResult {
+    private _isOk: boolean
+    private _feedback: string[]
+
+    constructor() {
+        this._isOk = true
+        this._feedback = []
+    }
+
+    get isOk() {return this._isOk}
+    get feedback() {return this._feedback}
+
+    public fail(feedback: string) {
+        this._isOk = false
+        this._feedback.push(feedback)
+    }
+
+    public collapseFeedback(newFeedback: string[]) {
+        this._feedback = newFeedback
+    }
+
+    public static failed(feedback: string[]): TopicCheckerResult {
+        let instance = new TopicCheckerResult()
+        instance._isOk = false
+        instance._feedback = feedback
+
+        return instance
+    }
 }
 
 /**

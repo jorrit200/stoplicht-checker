@@ -41,22 +41,20 @@ export const bindSensorRijbaanTopicProtocol = (binder: ZMQSubCheckerBinder, traf
 }
 
 const sensorKeys = (message: Record<string, {voor: boolean, achter: boolean}>): TopicCheckerResult => {
-    let result = {} as TopicCheckerResult;
-    const requiredSensorNames = ['voor', 'achter'];
+    let result = new TopicCheckerResult()
+    const requiredSensorNames = ['voor', 'achter']
 
     Object.entries(message).forEach(([laneId, lane]) => {
-        const sensorNames = Object.keys(lane);
+        const sensorNames = Object.keys(lane)
 
         const unknownSensors = sensorNames.filter(sensorName => !requiredSensorNames.includes(sensorName));
         unknownSensors.forEach(sensorName => {
-            result.isOk = false;
-            result.feedback.push(`voor rijbaan/stoplicht ${laneId}: ${sensorName} wordt niet erkend als sensor naam. De bekende namen zijn: ${requiredSensorNames.join(', ')}`);
+            result.fail(`voor rijbaan/stoplicht ${laneId}: ${sensorName} wordt niet erkend als sensor naam. De bekende namen zijn: ${requiredSensorNames.join(', ')}`)
         })
 
         const missingSensors = requiredSensorNames.filter(sensorName => !sensorNames.includes(sensorName));
         missingSensors.forEach(sensorName => {
-            result.isOk = false;
-            result.feedback.push(`Voor rijbaan/stoplicht ${laneId}: is de noodzakelijke sensor "${sensorName}" niet meegeven. Alle rijbanen moeten de status van deze sensoren[ aangeven`)
+            result.fail(`Voor rijbaan/stoplicht ${laneId}: is de noodzakelijke sensor "${sensorName}" niet meegeven. Alle rijbanen moeten de status van deze sensoren[ aangeven`)
         })
     })
 
@@ -70,8 +68,7 @@ const sensorValues = (message: Record<string, { voor: boolean, achter: boolean }
         const sensorStates = Object.entries(lane)
         const noneBooleans = sensorStates.filter(([_, sensorState]) => typeof sensorState !== 'boolean')
         noneBooleans.forEach(([sensorName, sensorState]) => {
-            result.isOk = false;
-            result.feedback.push(`Voor rijbaan/stoplicht ${laneId}, sensor ${sensorName}: ${sensorState} is geen boolean. Het protocol verijst dat de waarde van elke sensor een boolean is. Niet ${typeof sensorState}`)
+            result.fail(`Voor rijbaan/stoplicht ${laneId}, sensor ${sensorName}: ${sensorState} is geen boolean. Het protocol verijst dat de waarde van elke sensor een boolean is. Niet ${typeof sensorState}`)
         })
     })
     return result

@@ -17,27 +17,24 @@ export const bindTijdTopicProtocol = (binder: ZMQSubCheckerBinder) => {
 }
 
 const timeKeyIsCorrect = (message: {simulatie_tijd_ms: number}): TopicCheckerResult => {
-    let result = {isOk: true, feedback: []} as TopicCheckerResult
+    let result = new TopicCheckerResult()
 
     const keys = Object.keys(message)
     if (keys.length !== 1) {
-        result.isOk = false
-        result.feedback.push(`Messages in deze topic moeten precies 1 key hebben. Di bericht bevat ${keys.length} keys: ${keys.join(', ')}`)
+        result.fail(`Messages in deze topic moeten precies 1 key hebben. Di bericht bevat ${keys.length} keys: ${keys.join(', ')}`)
     }
     if (keys[0] !== 'simulatie_tijd_ms') {
-        result.isOk = false
-        result.feedback.push(`De key moet "simulatie_tijd_ms" heten. Huidige key is ${keys[0]}"`)
+        result.fail(`De key moet "simulatie_tijd_ms" heten. Huidige key is ${keys[0]}"`)
     }
 
     return result
 }
 
 const timeValueIsInt = (message: {simulatie_tijd_ms: number}): TopicCheckerResult => {
-    let result = {isOk: true, feedback: []} as TopicCheckerResult
+    let result = new TopicCheckerResult()
 
     if (!Number.isInteger(message.simulatie_tijd_ms)) {
-        result.isOk = false
-        result.feedback.push(`De meegegeven simulatie tijd moet een integers zijn. Huidige tijd is ${message.simulatie_tijd_ms} (${typeof message.simulatie_tijd_ms})`)
+        result.fail(`De meegegeven simulatie tijd moet een integers zijn. Huidige tijd is ${message.simulatie_tijd_ms} (${typeof message.simulatie_tijd_ms})`)
     }
 
     return result

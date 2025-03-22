@@ -19,33 +19,30 @@ export const bindSensorSpecialTopicProtocol = (binder: ZMQSubCheckerBinder, traf
 }
 
 const specialSensorIds = (message: Record<string, boolean>, traffic: Traffic): TopicCheckerResult => {
-    let result = {isOk: true, feedback: []} as TopicCheckerResult
+    let result = new TopicCheckerResult()
 
     const knownSensors = traffic.getSpecialSenors().map(sensor => sensor.name)
     const sensors = Object.keys(knownSensors)
 
     sensors.filter(sensor => !knownSensors.includes(sensor))
         .forEach(sensor => {
-            result.isOk = false
-            result.feedback.push(`De sensor "${sensor}" wordt niet erkend door het protocol.`)
+            result.fail(`De sensor "${sensor}" wordt niet erkend door het protocol.`)
         })
 
     knownSensors.filter(sensor => !sensors.includes(sensor))
         .forEach(sensor => {
-            result.isOk = false
-            result.feedback.push(`De sensor "${sensor}" mist in dit bericht.`)
+            result.fail(`De sensor "${sensor}" mist in dit bericht.`)
         })
 
     return result
 }
 
 const specialSenorValues = (message: Record<string, boolean>): TopicCheckerResult => {
-    let result = {isOk: true, feedback: []} as TopicCheckerResult
+    let result = new TopicCheckerResult()
     Object.entries(message)
         .filter(([_, value]) => typeof value !== 'boolean')
         .forEach(([name, value]) => {
-            result.isOk = false
-            result.feedback.push(`De sensor "${name}" heeft geen boolean als waarde. Waarde is ${value} met type ${typeof value}`)
+            result.fail(`De sensor "${name}" heeft geen boolean als waarde. Waarde is ${value} met type ${typeof value}`)
         })
     return result
 }
