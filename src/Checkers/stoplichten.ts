@@ -3,7 +3,7 @@ import {Traffic} from "../Service/Traffic";
 import {useTraffic} from "./modefiers";
 
 
-export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic): ZMQSubCheckerBinder => {
+export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic) => {
     binder.bind("stoplichten", {
         name: "Stoplicht ID formaat",
         checksFor: "protocol",
@@ -38,8 +38,6 @@ export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic:
         description: "Controleert of er geen collisies mogelijk zijn met alle stoplichten die op groen staan",
         method: useTraffic(noIntersectionsBetweenGreenGroups, traffic)
     })
-
-    return binder
 }
 
 
