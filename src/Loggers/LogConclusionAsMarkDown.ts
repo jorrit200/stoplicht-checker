@@ -1,4 +1,4 @@
-﻿import {TopicCheckerConclusion} from "../Service/ZMQSubCheckerBinder";
+﻿import {TopicMessageConclusion} from "../Service/ZMQSubCheckerBinder";
 import {promises as fs} from 'fs';
 import * as path from 'path';
 
@@ -6,7 +6,7 @@ import * as path from 'path';
  * Takes message conclusions, and writes MarkdDownFiles
  * @param conclusion Passed by binder.
  */
-export const LogConclusionAsMarkDown = async (conclusion: TopicCheckerConclusion): Promise<void> => {
+export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion): Promise<void> => {
     const output = `./output/${conclusion.topic}/${conclusion.timestamp}.md`
     const outputDir = path.dirname(output);
 
