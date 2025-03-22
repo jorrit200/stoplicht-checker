@@ -58,7 +58,7 @@ export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion
     await fs.appendFile(output, "\n\n");
     for (const res of conclusion.results) {
         await fs.appendFile(
-            output, '## ' + res.checker.method.name +
+            output, '## ' + res.checker.name +
             ' ' + (res.result.isOk ? '✅' : '❌') + '\n\n'
         );
 
