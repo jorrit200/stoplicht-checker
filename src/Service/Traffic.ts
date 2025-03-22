@@ -1,4 +1,4 @@
-﻿import {TrafficData, TrafficLightGroup, TrafficLightLane} from "../Data/TrafficData";
+﻿import {Sensor, TrafficData, TrafficLightGroup, TrafficLightLane} from "../Data/TrafficData";
 
 export class Traffic {
     private readonly _data: TrafficData
@@ -24,6 +24,10 @@ export class Traffic {
             .getIntersects()
             .filter(intersect => ingoingGroups.includes(intersect)))
         return results
+    }
+
+    getSpecialSenors(): SpecialSensor[] {
+        return Object.entries(this._data.sensors).map(([name, sensor]) => new SpecialSensor(name, sensor))
     }
 }
 
@@ -83,5 +87,19 @@ export class TrafficLightId {
 
     public toString = (): string => {
         return `${this._group}.${this._lane}`;
+    }
+}
+
+export class SpecialSensor {
+    private readonly _name: string
+    private readonly _data: Sensor
+
+    constructor(name: string, data: Sensor) {
+        this._name = name;
+        this._data = data
+    }
+
+    public get name() {
+        return this._name
     }
 }

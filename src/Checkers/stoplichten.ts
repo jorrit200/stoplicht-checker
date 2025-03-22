@@ -2,7 +2,48 @@
 import {Traffic} from "../Service/Traffic";
 import {useTraffic} from "./modefiers";
 
-const trafficLightIdFormat = (message: any): TopicCheckerResult => {
+
+export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic): ZMQSubCheckerBinder => {
+    binder.bind("stoplichten", {
+        name: "Stoplicht ID formaat",
+        checksFor: "protocol",
+        description: "Controleert of alle keys in hetzelfde formaat zijn als een stoplicht id. Zoals beschreven in de spec. `g.l`",
+        method: trafficLightIdFormat
+    });
+
+    binder.bind("stoplichten", {
+        name: "Stoplicht waarden geldig",
+        checksFor: "protocol",
+        description: 'Controleert of alle waardes van de message binnen de mogelijk waardes valt: ["rood", "oranje", "groen"]',
+        method: allTrafficlightStatesAreValid
+    });
+
+    binder.bind("stoplichten", {
+        name: "Stoplicht ID's bestaan",
+        checksFor: "protocol",
+        description: "Controleert of de meegeven keys bestaan volgens het protocol. Raadpleeg [Brug_verkeerslichten.png](https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Brug_verkeerslichten.png) en [Kruispunt_verkeerslichten.png](https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Kruispunt_verkeerslichten.png) voor een overzicht van erkende stoplichten",
+        method: useTraffic(allIncludedIdsAreKnown, traffic)
+    })
+
+    binder.bind("stoplichten", {
+        name: "Ale erkende stoplicht Ids zijn meegegeven",
+        checksFor: "protocol",
+        description: "Contoleer of alle stoplicht ids die erkend worden door de specs, meegeven worden als keys in het bericht. Dit is noodzakelijk omdat het protocol eist dat elk bericht de volledige staat van de topic mee geeft.",
+        method: useTraffic(allKnownIdsAreIncluded, traffic)
+    })
+
+    binder.bind("stoplichten", {
+        name: "Intersecties tussen groene stoplichten",
+        checksFor: "intention",
+        description: "Controleert of er geen collisies mogelijk zijn met alle stoplichten die op groen staan",
+        method: useTraffic(noIntersectionsBetweenGreenGroups, traffic)
+    })
+
+    return binder
+}
+
+
+export const trafficLightIdFormat = (message: any): TopicCheckerResult => {
     const idPattern = /^[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/;
 
     let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
@@ -47,8 +88,8 @@ const allTrafficlightStatesAreValid = (message: { [key: string]: "rood" | "groen
     return result;
 }
 
-const allIncludedIdsAreKnown = (message: {
-    [key: string]: "rood" | "groen" | "oranje"
+export const allIncludedIdsAreKnown = (message: {
+    [key: string]: any
 }, traffic: Traffic): TopicCheckerResult => {
     let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
 
@@ -69,8 +110,8 @@ const allIncludedIdsAreKnown = (message: {
     return result
 }
 
-const allKnownIdsAreIncluded = (
-    message: { [key: string]: "rood" | "groen" | "oranje" },
+export const allKnownIdsAreIncluded = (
+    message: { [key: string]: any },
     traffic: Traffic
 ): TopicCheckerResult => {
     let result = {isOk: true, feedback: []} as { isOk: boolean, feedback: string[] };
@@ -116,44 +157,4 @@ const noIntersectionsBetweenGreenGroups = (
         })
 
     return result
-}
-
-
-export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic): ZMQSubCheckerBinder => {
-    binder.bind("stoplichten", {
-        name: "Stoplicht ID formaat",
-        checksFor: "protocol",
-        description: "Controleert of alle keys in hetzelfde formaat zijn als een stoplicht id. Zoals beschreven in de spec. `g.l`",
-        method: trafficLightIdFormat
-    });
-
-    binder.bind("stoplichten", {
-        name: "Stoplicht waarden geldig",
-        checksFor: "protocol",
-        description: 'Controleert of alle waardes van de message binnen de mogelijk waardes valt: ["rood", "oranje", "groen"]',
-        method: allTrafficlightStatesAreValid
-    });
-
-    binder.bind("stoplichten", {
-        name: "Stoplicht ID's bestaan",
-        checksFor: "protocol",
-        description: "Controleert of de meegeven keys bestaan volgens het protocol. Raadpleeg [Brug_verkeerslichten.png](https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Brug_verkeerslichten.png) en [Kruispunt_verkeerslichten.png](https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Kruispunt_verkeerslichten.png) voor een overzicht van erkende stoplichten",
-        method: useTraffic(allIncludedIdsAreKnown, traffic)
-    })
-
-    binder.bind("stoplichten", {
-        name: "Ale erkende stoplicht Ids zijn meegegeven",
-        checksFor: "protocol",
-        description: "Contoleer of alle stoplicht ids die erkend worden door de specs, meegeven worden als keys in het bericht. Dit is noodzakelijk omdat het protocol eist dat elk bericht de volledige staat van de toppic mee geeft.",
-        method: useTraffic(allKnownIdsAreIncluded, traffic)
-    })
-
-    binder.bind("stoplichten", {
-        name: "Intersecties tussen groene stoplichten",
-        checksFor: "intention",
-        description: "Controleert of er geen collisies mogelijk zijn met alle stoplichten die op groen staan",
-        method: useTraffic(noIntersectionsBetweenGreenGroups, traffic)
-    })
-
-    return binder
 }

@@ -39,7 +39,7 @@ export class ZMQSubCheckerBinder {
      * Start running this binder. (for now there is no way to gracefully stop this...)
      * @param resultOutput a function that takes the results of all tests on a message. Useful for logging results.
      */
-    public async run({resultOutput}: {resultOutput: (conclusion: TopicCheckerConclusion) => void} = {resultOutput: console.log}) {
+    public async run({resultOutput}: {resultOutput: (conclusion: TopicMessageConclusion) => void} = {resultOutput: console.log}) {
         this.sub.subscribe(...this.bindings.keys())
 
         for await (const [topic, msg] of this.sub) {
@@ -51,7 +51,7 @@ export class ZMQSubCheckerBinder {
             try {
                 msgObj = JSON.parse(msgStr)
             } catch (e) {
-                const conclusion: TopicCheckerConclusion = {
+                const conclusion: TopicMessageConclusion = {
                     topic: topicStr,
                     message: msgStr,
                     results: [{
@@ -88,7 +88,7 @@ export class ZMQSubCheckerBinder {
                 }
             });
 
-            const conclusion: TopicCheckerConclusion = {
+            const conclusion: TopicMessageConclusion = {
                 topic: topicStr,
                 message: msgObj,
                 results: resultArr,
@@ -131,17 +131,15 @@ export interface TopicChecker<TIn> {
  * It contains whether the check passed,
  * and some human-readable strings that provide feedback to the programmer who sends the messages.
  */
-export type TopicCheckerResult = {
-    isOk: true
-} | {
-    isOk: false
+export interface TopicCheckerResult {
+    isOk: boolean
     feedback: string[]
 }
 
 /**
  * A collection of all the checker results for a single message.
  */
-export interface TopicCheckerConclusion {
+export interface TopicMessageConclusion {
     /**
      * The topic the message was sent over.
      */
