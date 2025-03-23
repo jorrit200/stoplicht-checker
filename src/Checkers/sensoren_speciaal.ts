@@ -2,6 +2,13 @@
 import {Traffic} from "../Service/Traffic";
 import {useTraffic} from "./modefiers";
 
+/**
+ * Binds some checks to the "sensoren_speciaal" topic,
+ * that ensure the messages with that topic adhere to the protocol:
+ * https://github.com/jorrit200/stoplicht-communicatie-spec/tree/main/topics/sensoren_speciaal
+ * @param binder The binder to add the checks to.
+ * @param traffic The traffic data to base some checks on.
+ */
 export const bindSensorSpecialTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic) => {
     binder.bind("sensoren_speciaal", {
         name: "Sensor namen",
@@ -19,26 +26,27 @@ export const bindSensorSpecialTopicProtocol = (binder: ZMQSubCheckerBinder, traf
 }
 
 const specialSensorIds = (message: Record<string, boolean>, traffic: Traffic): TopicCheckerResult => {
-    let result = new TopicCheckerResult()
+    const result = new TopicCheckerResult()
 
     const knownSensors = traffic.getSpecialSenors().map(sensor => sensor.name)
     const sensors = Object.keys(knownSensors)
 
-    sensors.filter(sensor => !knownSensors.includes(sensor))
-        .forEach(sensor => {
-            result.fail(`De sensor "${sensor}" wordt niet erkend door het protocol.`)
-        })
+    const unknownSensors = sensors.filter(sensor => !knownSensors.includes(sensor));
+    unknownSensors.forEach(sensor => {
+        result.fail(`De sensor "${sensor}" wordt niet erkend door het protocol.`)
+    })
 
-    knownSensors.filter(sensor => !sensors.includes(sensor))
-        .forEach(sensor => {
-            result.fail(`De sensor "${sensor}" mist in dit bericht.`)
-        })
+    const missingSensors = knownSensors.filter(sensor => !sensors.includes(sensor));
+    missingSensors.forEach(sensor => {
+        result.fail(`De sensor "${sensor}" mist in dit bericht.`)
+    })
 
     return result
 }
 
 const specialSenorValues = (message: Record<string, boolean>): TopicCheckerResult => {
-    let result = new TopicCheckerResult()
+    const result = new TopicCheckerResult()
+    
     Object.entries(message)
         .filter(([_, value]) => typeof value !== 'boolean')
         .forEach(([name, value]) => {

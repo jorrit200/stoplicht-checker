@@ -7,16 +7,27 @@ export class Traffic {
         this._data = data
     }
 
+    /**
+     * All the ids of traffic-lights/lanes
+     */
     getAllIds(): string[] {
         return Object.keys(this._data.groups)
             .flatMap((g) => Object.keys(this._data.groups[g].lanes)
                 .map(l => `${g}.${l}`))
     }
 
+    /**
+     * Retrieves a group by the `g` part of `g.l`
+     * @param id
+     */
     getGroup(id: number): TrafficGroup {
         return new TrafficGroup(id, this._data.groups[id])
     }
 
+    /**
+     * All the intersections between a set of groups.
+     * @param ids
+     */
     getIntersects(ids: number[]): Record<number, number[]> {
         const ingoingGroups = [...new Set(ids)]
         let results: Record<number, number[]> = {}
@@ -26,11 +37,17 @@ export class Traffic {
         return results
     }
 
+    /**
+     * lis the special sensors in the traffic situation.
+     */
     getSpecialSenors(): SpecialSensor[] {
         return Object.entries(this._data.sensors).map(([name, sensor]) => new SpecialSensor(name, sensor))
     }
 }
 
+/**
+ * A group of lanes that all have the same traffic direction, and cant intersect with each-other.
+ */
 export class TrafficGroup {
     private readonly _id: number
     private readonly _data: TrafficLightGroup
@@ -40,11 +57,18 @@ export class TrafficGroup {
         this._data = data
     }
 
+    /**
+     * All the groups this one intersects with.
+     */
     getIntersects(): number[] {
         return this._data.intersects_with
     }
 }
 
+
+/**
+ * A specific lane / traffic-light within a group.
+ */
 export class TrafficLane {
     private readonly _id: TrafficLightId
     private readonly _data: TrafficLightLane
@@ -55,6 +79,10 @@ export class TrafficLane {
     }
 }
 
+
+/**
+ * The identifier of a specific traffic-light / lane.
+ */
 export class TrafficLightId {
     private readonly _group: number
     private readonly _lane: number
@@ -67,6 +95,10 @@ export class TrafficLightId {
         this._lane = lane;
     }
 
+    /**
+     * Turns a string with the format `g.l` into an ID object.
+     * @param string
+     */
     public static fromString(string: string): TrafficLightId {
         const validIdRegex = /^([1-9]+)\.([1-9]+)$/
         let match = string.match(validIdRegex);
@@ -77,10 +109,16 @@ export class TrafficLightId {
         return new TrafficLightId(Number.parseInt(groupStr), Number.parseInt(laneStr))
     }
 
+    /**
+     * The g of `g.l`
+     */
     get group() {
         return this._group
     }
 
+    /**
+     * The l of `g.l`
+     */
     get lane() {
         return this._lane
     }
@@ -90,6 +128,10 @@ export class TrafficLightId {
     }
 }
 
+
+/**
+ * A sensor that isn't part of a specific traffic-light / lane.
+ */
 export class SpecialSensor {
     private readonly _name: string
     private readonly _data: Sensor

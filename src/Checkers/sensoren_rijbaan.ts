@@ -3,6 +3,13 @@ import {Traffic} from "../Service/Traffic";
 import {allIncludedIdsAreKnown, allKnownIdsAreIncluded, trafficLightIdFormat} from "./stoplichten";
 import {useTraffic} from "./modefiers";
 
+/**
+ * Binds checks to the "sensoren_rijbaan" topic,
+ * And checks if the protocol is adhered to.
+ * https://github.com/jorrit200/stoplicht-communicatie-spec/tree/main/topics/sensoren_rijbaan
+ * @param binder The binder to add the checks to
+ * @param traffic The traffic data to base some checks on
+ */
 export const bindSensorRijbaanTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic) => {
     binder.bind("sensoren_rijbaan", {
         name: "Rijbaan ID formaat",
@@ -41,7 +48,7 @@ export const bindSensorRijbaanTopicProtocol = (binder: ZMQSubCheckerBinder, traf
 }
 
 const sensorKeys = (message: Record<string, {voor: boolean, achter: boolean}>): TopicCheckerResult => {
-    let result = new TopicCheckerResult()
+    const result = new TopicCheckerResult()
     const requiredSensorNames = ['voor', 'achter']
 
     Object.entries(message).forEach(([laneId, lane]) => {
@@ -62,7 +69,7 @@ const sensorKeys = (message: Record<string, {voor: boolean, achter: boolean}>): 
 }
 
 const sensorValues = (message: Record<string, { voor: boolean, achter: boolean }>): TopicCheckerResult => {
-    let result = {} as TopicCheckerResult;
+    const result = {} as TopicCheckerResult;
 
     Object.entries(message).forEach(([laneId, lane]) => {
         const sensorStates = Object.entries(lane)
