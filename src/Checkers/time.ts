@@ -1,5 +1,11 @@
 ﻿import {TopicCheckerResult, ZMQSubCheckerBinder} from "../Service/ZMQSubCheckerBinder";
 
+
+/**
+ * Adds some checks to a binder for the "tijd" topic, to ensure that message with this topic adhere to the protocol:
+ * https://github.com/jorrit200/stoplicht-communicatie-spec/tree/main/topics/tijd
+ * @param binder The binder to add the checks to.
+ */
 export const bindTijdTopicProtocol = (binder: ZMQSubCheckerBinder) => {
     binder.bind("tijd", {
         name: "Key naam",
