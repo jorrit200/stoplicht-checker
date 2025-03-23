@@ -67,6 +67,12 @@ export class TrafficLightId {
         this._lane = lane;
     }
 
+
+    /**
+     * Transforms a string in the `g.l` format to an id object.
+     * @throws Error when the supplied string is not in the `g.l` format
+     * @param string the string to pare to a valid id.
+     */
     public static fromString(string: string): TrafficLightId {
         const validIdRegex = /^([1-9]+)\.([1-9]+)$/
         let match = string.match(validIdRegex);
