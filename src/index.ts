@@ -1,5 +1,5 @@
 ﻿import {Subscriber} from "zeromq";
-import {ZMQSubCheckerBinder} from "./Service/ZMQSubCheckerBinder";
+import {TopicCheckerResult, ZMQSubCheckerBinder} from "./Service/ZMQSubCheckerBinder";
 import {LogConclusionAsMarkDown} from "./Loggers/LogConclusionAsMarkDown";
 import {TrafficData} from "./Data/TrafficData";
 import {bindStoplichtTopicProtocol} from "./Checkers/stoplichten";
@@ -28,6 +28,15 @@ async function run() {
     bindSensorRijbaanTopicProtocol(binder, traffic)
     bindSensorSpecialTopicProtocol(binder, traffic)
     bindTijdTopicProtocol(binder)
+
+    binder.bind("stoplichten", {
+        method: function (message: any): TopicCheckerResult {
+            throw new Error("This check is written poorly");
+        },
+        name: "The throwing one",
+        checksFor: "protocol",
+        description: "This checker always throws."
+    })
 
     await binder.run({
         resultOutput: LogConclusionAsMarkDown
