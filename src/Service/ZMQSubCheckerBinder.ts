@@ -136,19 +136,32 @@ export class TopicCheckerResult {
         this._isOk = true
         this._feedback = []
     }
-
     get isOk() {return this._isOk}
+
     get feedback() {return this._feedback}
 
+    /**
+     * The result is now a failure for the specified reason/feedback.
+     * @param feedback Feedback to add to the failure reasons
+     */
     public fail(feedback: string) {
         this._isOk = false
         this._feedback.push(feedback)
     }
 
+    /**
+     * Simplify all the feedback to the specified feedback
+     * @param newFeedback new feedback array to override the old one
+     */
     public collapseFeedback(newFeedback: string[]) {
         this._feedback = newFeedback
     }
 
+
+    /**
+     * Creates a result in the failed state, with the provided feedback
+     * @param feedback The feedback held by the result.
+     */
     public static failed(feedback: string[]): TopicCheckerResult {
         let instance = new TopicCheckerResult()
         instance._isOk = false
