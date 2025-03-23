@@ -29,15 +29,6 @@ async function run() {
     bindSensorSpecialTopicProtocol(binder, traffic)
     bindTijdTopicProtocol(binder)
 
-    binder.bind("stoplichten", {
-        method: function (message: any): TopicCheckerResult {
-            throw new Error("This check is written poorly");
-        },
-        name: "The throwing one",
-        checksFor: "protocol",
-        description: "This checker always throws."
-    })
-
     await binder.run({
         resultOutput: LogConclusionAsMarkDown
     });
