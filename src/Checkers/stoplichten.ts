@@ -74,7 +74,7 @@ const allTrafficlightStatesAreValid = (message: { [key: string]: "rood" | "groen
     const messageKeyLength = Object.keys(message).length;
 
     Object.entries(message)
-        .filter(([key, _]) => !validStates.includes(key))
+        .filter(([_, value]) => !validStates.includes(value))
         .forEach(([key, value]) => {
             result.fail(`Key: ${key} Value: ${value} is niet één van ["rood", "oranje", "groen"]. Check voor spelfouten en NL/EN.`)
         })
