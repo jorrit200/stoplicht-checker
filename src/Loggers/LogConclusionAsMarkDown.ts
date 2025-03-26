@@ -3,7 +3,7 @@ import {promises as fs} from 'fs';
 import * as path from 'path';
 
 /**
- * Takes message conclusions, and writes MarkdDownFiles
+ * Takes message conclusions, and writes MarkDownFiles
  * @param conclusion Passed by binder.
  */
 export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion): Promise<void> => {
@@ -80,6 +80,7 @@ export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion
             );
         }
         await fs.appendFile(output, '\n\n')
+
     }
 }
 

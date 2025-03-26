@@ -18,7 +18,7 @@ async function run() {
     console.log("data ingeladen")
 
     const sub = new Subscriber();
-    sub.connect("tcp://127.0.0.1:5556");
+    sub.connect("tcp://192.168.1.10:5555");
 
     let binder = new ZMQSubCheckerBinder(sub);
 
