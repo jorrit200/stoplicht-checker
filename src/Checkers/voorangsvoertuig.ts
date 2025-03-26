@@ -20,7 +20,7 @@ export const bindVoorrangsvoertuigTopicProtocol = (binder: ZMQSubCheckerBinder, 
     binder.bind("voorrangsvoertuig", {
         name: "Queue item keys",
         checksFor: "protocol",
-        description: 'Controleert of elk van de objecten in de queue de volgende keys hebben: "baan" en "simulatie_tijd_ms". Waarschuwing, hier gaat nog een key aan toegevoegd worden die de prioriteit aangeeft van het voertuig.',
+        description: 'Controleert of elk van de objecten in de queue de volgende keys hebben: "baan", "simulatie_tijd_ms" en "prioriteit".',
         method: queueItemKeys,
     })
 
@@ -43,6 +43,13 @@ export const bindVoorrangsvoertuigTopicProtocol = (binder: ZMQSubCheckerBinder, 
         checksFor: "protocol",
         description: "Controleert of de meegegeven tijd wel een valide int is.",
         method: simulationTimesIsInt,
+    })
+
+    binder.bind("voorrangsvoertuig", {
+        name: "Prioriteit is 1 of 2",
+        checksFor: "protocol",
+        description: "het veld prioriteit voor een item in de queue, moet 1 of 2 zijn.",
+        method: priorityIsOneOrTwo,
     })
 }
 
@@ -85,7 +92,7 @@ const queueIsArray = (message: { queue: voorrangsvoertuig[] }): TopicCheckerResu
 const queueItemKeys = (message: { queue: voorrangsvoertuig[] }): TopicCheckerResult => {
     const result = new TopicCheckerResult()
 
-    const requiredKeys = ['baan', 'simulatie_tijd_ms']
+    const requiredKeys = ['baan', 'simulatie_tijd_ms', 'prioriteit']
     const queue = message.queue
 
     queue.forEach((voorrangsvoertuig, queueIndex) => {
@@ -145,7 +152,25 @@ const simulationTimesIsInt = (message: { queue: voorrangsvoertuig[]}): TopicChec
     return result
 }
 
+const priorityIsOneOrTwo = (message: {queue : voorrangsvoertuig[]}): TopicCheckerResult => {
+    const result = new TopicCheckerResult()
+
+    message.queue.forEach((voorrangsvoertuig, queueIndex) => {
+        if (!Number.isInteger(voorrangsvoertuig.prioriteit)) {
+            result.fail(`Voor queue[${queueIndex}]: Prioriteit moet een integer zijn. Meegegeven: ${voorrangsvoertuig.prioriteit} (${typeof voorrangsvoertuig.prioriteit})`)
+        }
+        if (![1,2].includes(voorrangsvoertuig.prioriteit)) {
+            result.fail(`Voor queue[${queueIndex}]: Prioriteit moet 1 of 2 zijn, niet: ${voorrangsvoertuig.prioriteit}`)
+        }
+    })
+
+    return result
+}
+
+
+
 interface voorrangsvoertuig {
     baan: string,
-    simulatie_tijd_ms: Number
+    simulatie_tijd_ms: number
+    prioriteit: number
 }
