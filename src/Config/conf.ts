@@ -10,11 +10,18 @@ const manyOfFormat = <T>(set: T[]): (val: T[]) => void => {
     }
 }
 
-export const hardConfig = convict({
-    subscribe_port: {
-        doc: 'The port at which the regression checker accepts messages.',
+export const config = convict({
+    simulation_port: {
+        doc: 'The port at which the regression checker accepts simulation messages.',
         format: 'port',
-        default: 5550,
+        default: 5551,
+        env: 'PORT_SIMULATION'
+    },
+    controller_port: {
+        doc: 'The port at which the regression checker accepts controller messages.',
+        format: 'port',
+        default: 5552,
+        env: 'PORT_CONTROLLER'
     },
     output_dir: {
         doc: 'The dir to which the program writes',
@@ -25,19 +32,12 @@ export const hardConfig = convict({
         doc: 'File from which to load the config',
         format: 'filename',
         default: './Config/config.json',
-    }
-})
-
-export const config = convict({
+    },
     subscribe: {
         doc: "The topics to subscribe to",
         format: manyOfFormat(["sensoren_rijbaan", "sensoren_speciaal", "stoplichten", "time", "voorrangsvoertuigen"]),
         default: ["sensoren_rijbaan", "sensoren_speciaal", "stoplichten", "time"],
         env: 'SUBSCRIBE'
     },
-
-
-
-
 
 })
