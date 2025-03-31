@@ -7,8 +7,12 @@ import {Traffic} from "./Service/Traffic";
 import {bindSensorRijbaanTopicProtocol} from "./Checkers/sensoren_rijbaan";
 import {bindSensorSpecialTopicProtocol} from "./Checkers/sensoren_speciaal";
 import {bindTijdTopicProtocol} from "./Checkers/time";
+import {config} from "./Config/conf"
 
 async function run() {
+    if (config.get('output.wipe_on_start')) {
+        console.log("doing the wipe")
+    }
     console.log("Verkeer data inladen...");
     const trafficDataRes = await fetch("https://raw.github.com/jorrit200/stoplicht-communicatie-spec/main/intersectionData/lanes.json")
     if (!trafficDataRes.ok) {
@@ -18,7 +22,7 @@ async function run() {
     console.log("data ingeladen")
 
     const sub = new Subscriber();
-    sub.connect("tcp://192.168.1.10:5555");
+    sub.connect("tcp://192.168.1.2:5556");
 
     let binder = new ZMQSubCheckerBinder(sub);
 

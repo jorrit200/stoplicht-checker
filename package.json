@@ -27,12 +27,14 @@
   "homepage": "https://github.com/jorrit200/stoplicht-checker#readme",
   "devDependencies": {
     "@types/convict": "^6.1.6",
+    "@types/convict-format-with-validator": "^6.0.5",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },
   "dependencies": {
     "convict": "^6.2.4",
+    "convict-format-with-validator": "^6.2.0",
     "zeromq": "^6.3.0"
   }
 }

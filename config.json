@@ -1,0 +1,17 @@
+{
+  "simulation": {
+    "port": 5551,
+    "ip": "127.0.0.1",
+    "subscribe": ["sensoren_rijbaan", "sensoren_speciaal", "time", "voorrangsvoertuigen"]
+  },
+  "controller": {
+    "port": 5552,
+    "ip": "127.0.0.1",
+    "subscribe": ["stoplichten"]
+  },
+  "output": {
+    "dir": "./output",
+    "wipe_on_start": false,
+    "log_perfect_messages": true
+  }
+}
