@@ -77,7 +77,7 @@ const queueIsArray = (message: { queue: Voorrangvoertuig[] }): TopicCheckerResul
     const values = Object.values(message);
 
     if (values.length !== 1) {
-        result.fail("De queue waarde moet een enkele array zijn. Dit bericht bevat verschillende top-level waarden, inplaats van een array.")
+        result.fail("De queue waarde moet een enkele array zijn. Dit bericht bevat verschillende top-level waarden, in plaats van een array.")
     }
 
     const value = values[0]
