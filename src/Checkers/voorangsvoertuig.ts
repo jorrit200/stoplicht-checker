@@ -53,7 +53,7 @@ export const bindVoorrangsvoertuigTopicProtocol = (binder: ZMQSubCheckerBinder, 
     })
 }
 
-const queueKey = (message: { queue: Voorrangvoertuig[] }): TopicCheckerResult => {
+const queueKey = (message: { queue: Voorrangsvoertuig[] }): TopicCheckerResult => {
     const result = new TopicCheckerResult();
 
     const requiredKey = "queue"
@@ -71,7 +71,7 @@ const queueKey = (message: { queue: Voorrangvoertuig[] }): TopicCheckerResult =>
 }
 
 
-const queueIsArray = (message: { queue: Voorrangvoertuig[] }): TopicCheckerResult => {
+const queueIsArray = (message: { queue: Voorrangsvoertuig[] }): TopicCheckerResult => {
     const result = new TopicCheckerResult()
 
     const values = Object.values(message);
@@ -89,7 +89,7 @@ const queueIsArray = (message: { queue: Voorrangvoertuig[] }): TopicCheckerResul
     return result
 }
 
-const queueItemKeys = (message: { queue: Voorrangvoertuig[] }): TopicCheckerResult => {
+const queueItemKeys = (message: { queue: Voorrangsvoertuig[] }): TopicCheckerResult => {
     const result = new TopicCheckerResult()
 
     const requiredKeys = ['baan', 'simulatie_tijd_ms', 'prioriteit']
@@ -112,7 +112,7 @@ const queueItemKeys = (message: { queue: Voorrangvoertuig[] }): TopicCheckerResu
     return result
 }
 
-const queueLaneIdFormat = (message: { queue: Voorrangvoertuig[] }): TopicCheckerResult => {
+const queueLaneIdFormat = (message: { queue: Voorrangsvoertuig[] }): TopicCheckerResult => {
     const result = new TopicCheckerResult()
 
     message.queue.forEach((voorrangsvoertuig, queueIndex) => {
@@ -126,7 +126,7 @@ const queueLaneIdFormat = (message: { queue: Voorrangvoertuig[] }): TopicChecker
     return result
 }
 
-const queueLaneIdExists = (message: { queue: Voorrangvoertuig[] }, traffic: Traffic): TopicCheckerResult => {
+const queueLaneIdExists = (message: { queue: Voorrangsvoertuig[] }, traffic: Traffic): TopicCheckerResult => {
     const result = new TopicCheckerResult()
 
     const knownLaneKeys = traffic.getAllIds()
@@ -140,7 +140,7 @@ const queueLaneIdExists = (message: { queue: Voorrangvoertuig[] }, traffic: Traf
 }
 
 
-const simulationTimesIsInt = (message: { queue: Voorrangvoertuig[]}): TopicCheckerResult => {
+const simulationTimesIsInt = (message: { queue: Voorrangsvoertuig[]}): TopicCheckerResult => {
     const result = new TopicCheckerResult()
 
     message.queue.forEach((voorrangsvoertuig, queueIndex) => {
@@ -152,7 +152,7 @@ const simulationTimesIsInt = (message: { queue: Voorrangvoertuig[]}): TopicCheck
     return result
 }
 
-const priorityIsOneOrTwo = (message: {queue : Voorrangvoertuig[]}): TopicCheckerResult => {
+const priorityIsOneOrTwo = (message: {queue : Voorrangsvoertuig[]}): TopicCheckerResult => {
     const result = new TopicCheckerResult()
 
     message.queue.forEach((voorrangsvoertuig, queueIndex) => {
@@ -167,7 +167,7 @@ const priorityIsOneOrTwo = (message: {queue : Voorrangvoertuig[]}): TopicChecker
     return result
 }
 
-interface Voorrangvoertuig {
+interface Voorrangsvoertuig {
     baan: string,
     simulatie_tijd_ms: number
     prioriteit: number
