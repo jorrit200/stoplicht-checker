@@ -61,7 +61,7 @@ const sensorKeys = (message: Record<string, {voor: boolean, achter: boolean}>): 
 
         const missingSensors = requiredSensorNames.filter(sensorName => !sensorNames.includes(sensorName));
         missingSensors.forEach(sensorName => {
-            result.fail(`Voor rijbaan/stoplicht ${laneId}: is de noodzakelijke sensor "${sensorName}" niet meegeven. Alle rijbanen moeten de status van deze sensoren[ aangeven`)
+            result.fail(`Voor rijbaan/stoplicht ${laneId}: is de noodzakelijke sensor "${sensorName}" niet meegeven. Alle rijbanen moeten de status van deze sensoren aangeven`)
         })
     })
 
@@ -69,7 +69,7 @@ const sensorKeys = (message: Record<string, {voor: boolean, achter: boolean}>): 
 }
 
 const sensorValues = (message: Record<string, { voor: boolean, achter: boolean }>): TopicCheckerResult => {
-    const result = {} as TopicCheckerResult;
+    const result = new TopicCheckerResult()
 
     Object.entries(message).forEach(([laneId, lane]) => {
         const sensorStates = Object.entries(lane)

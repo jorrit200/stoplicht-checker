@@ -40,7 +40,7 @@ export class Traffic {
     /**
      * lis the special sensors in the traffic situation.
      */
-    getSpecialSenors(): SpecialSensor[] {
+    getSpecialSensors(): SpecialSensor[] {
         return Object.entries(this._data.sensors).map(([name, sensor]) => new SpecialSensor(name, sensor))
     }
 }

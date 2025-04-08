@@ -3,8 +3,6 @@ import {promises as fsp} from 'fs'
 import {createWriteStream} from 'fs'
 import {randomUUID} from 'crypto'
 import * as path from 'path'
-import {promises as fs} from 'fs';
-import * as path from 'path';
 import {config} from "../Config/conf";
 
 /**
@@ -13,38 +11,15 @@ import {config} from "../Config/conf";
  */
 export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion): Promise<void> => {
     const output = `./output/${conclusion.topic}/${conclusion.timestamp}_${randomUUID().substring(0, 5)}.md`
-    if (conclusion.results.every((r) => {r.result.isOk}) && !config.get('output.log_perfect_messages')) {
-        return
-    }
-
-    const output = `${config.get('output.dir')}/${conclusion.topic}/${conclusion.timestamp}.md`
+    if (
+        conclusion.results.every((r) => r.result.isOk)
+        && !config.get('output.log_perfect_messages')
+    ) { return; }
     const outputDir = path.dirname(output);
 
     await fsp.mkdir(outputDir, {recursive: true});
 
-
-    const style =
-        "<style>" +
-        ".admonition {" +
-        "border-left: 6px solid #333;" +
-        "background-color: #888;" +
-        "padding: 10px 15px;" +
-        "margin: 15px 0;" +
-        "border-radius: 5px;" +
-        "opacity: 0.8" +
-        "}" +
-        ".admonition.info {" +
-        "border-color: #1166ee;" +
-        "background-color: #333388;" +
-        "}" +
-        ".admonition.error {" +
-        "border-color: #f44343;" +
-        "background-color: #833;" +
-        "}" +
-        ".admonition:hover {" +
-        "opacity: 1" +
-        "}" +
-        "</style>"
+    const style =`<style>.admonition {border-left: 6px solid #333;background-color: #888;padding: 10px 15px;margin: 15px 0;border-radius: 5px;opacity: 0.8}.admonition.info {border-color: #1166ee;background-color: #333388;}.admonition.error {border-color: #f44343;background-color: #833;}.admonition:hover {opacity: 1}</style>`
     ;
 
     const stream = createWriteStream(output, {flags: 'a'});
