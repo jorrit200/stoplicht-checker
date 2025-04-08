@@ -1,8 +1,11 @@
-﻿import {TopicMessageConclusion} from "../Service/ZMQSubCheckerBinder";
+import {TopicMessageConclusion} from "../Service/ZMQSubCheckerBinder";
 import {promises as fsp} from 'fs'
 import {createWriteStream} from 'fs'
 import {randomUUID} from 'crypto'
 import * as path from 'path'
+import {promises as fs} from 'fs';
+import * as path from 'path';
+import {config} from "../Config/conf";
 
 /**
  * Takes message conclusions, and writes MarkDownFiles
@@ -10,6 +13,11 @@ import * as path from 'path'
  */
 export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion): Promise<void> => {
     const output = `./output/${conclusion.topic}/${conclusion.timestamp}_${randomUUID().substring(0, 5)}.md`
+    if (conclusion.results.every((r) => {r.result.isOk}) && !config.get('output.log_perfect_messages')) {
+        return
+    }
+
+    const output = `${config.get('output.dir')}/${conclusion.topic}/${conclusion.timestamp}.md`
     const outputDir = path.dirname(output);
 
     await fsp.mkdir(outputDir, {recursive: true});
@@ -80,7 +88,6 @@ export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion
                 .map(f => toAdmonition('error', f))));
         }
         stream.write('\n\n')
-
     }
     stream.end()
 }
