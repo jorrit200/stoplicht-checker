@@ -21,7 +21,7 @@ export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic:
         name: "Stoplicht waarden geldig",
         checksFor: "protocol",
         description: 'Controleert of alle waardes van de message binnen de mogelijk waardes valt: ["rood", "oranje", "groen"]',
-        method: allTrafficlightStatesAreValid
+        method: allTrafficLightStatesAreValid
     });
 
     binder.bind("stoplichten", {
@@ -66,7 +66,7 @@ export const trafficLightIdFormat = (message: any): TopicCheckerResult => {
     return result;
 }
 
-const allTrafficlightStatesAreValid = (message: { [key: string]: "rood" | "groen" | "oranje" }): TopicCheckerResult => {
+const allTrafficLightStatesAreValid = (message: { [key: string]: "rood" | "groen" | "oranje" }): TopicCheckerResult => {
     const result = new TopicCheckerResult();
 
     const validStates = ["groen", "oranje", "rood"];

@@ -18,25 +18,24 @@ export const bindSensorSpecialTopicProtocol = (binder: ZMQSubCheckerBinder, traf
     })
 
     binder.bind("sensoren_speciaal", {
-        name: "Senor waardes",
+        name: "Sensor waardes",
         checksFor: "protocol",
         description: "De waarde van elke speciale sensor moet een boolean zijn.",
-        method: specialSenorValues,
+        method: specialSensorValues,
     })
 }
 
 const specialSensorIds = (message: Record<string, boolean>, traffic: Traffic): TopicCheckerResult => {
     const result = new TopicCheckerResult()
 
-    const knownSensors = traffic.getSpecialSenors().map(sensor => sensor.name)
-    const sensors = Object.keys(knownSensors)
+    const knownSensors = traffic.getSpecialSensors().map(sensor => sensor.name)
 
-    const unknownSensors = sensors.filter(sensor => !knownSensors.includes(sensor));
+    const unknownSensors = knownSensors.filter(sensor => !knownSensors.includes(sensor));
     unknownSensors.forEach(sensor => {
         result.fail(`De sensor "${sensor}" wordt niet erkend door het protocol.`)
     })
 
-    const missingSensors = knownSensors.filter(sensor => !sensors.includes(sensor));
+    const missingSensors = knownSensors.filter(sensor => !knownSensors.includes(sensor));
     missingSensors.forEach(sensor => {
         result.fail(`De sensor "${sensor}" mist in dit bericht.`)
     })
@@ -44,7 +43,7 @@ const specialSensorIds = (message: Record<string, boolean>, traffic: Traffic): T
     return result
 }
 
-const specialSenorValues = (message: Record<string, boolean>): TopicCheckerResult => {
+const specialSensorValues = (message: Record<string, boolean>): TopicCheckerResult => {
     const result = new TopicCheckerResult()
     
     Object.entries(message)

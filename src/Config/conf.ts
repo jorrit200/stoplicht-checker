@@ -79,4 +79,3 @@ export const config = convict({
 
 })
 config.loadFile(config.get('config_file'))
-console.log('loaded the damn config')
