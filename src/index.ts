@@ -62,4 +62,4 @@ async function run() {
     
 }
 
-run().then(r => console.log('done'));
+run().then(_ => console.log('done'));
