@@ -35,7 +35,7 @@ const specialSensorIds = (message: Record<string, boolean>, traffic: Traffic): T
         result.fail(`De sensor "${sensor}" wordt niet erkend door het protocol.`)
     })
 
-    const missingSensors = knownSensors.filter(sensor => !knownSensors.includes(sensor));
+    const missingSensors = knownSensors.filter(sensor => !Object.keys(message).includes(sensor));
     missingSensors.forEach(sensor => {
         result.fail(`De sensor "${sensor}" mist in dit bericht.`)
     })
