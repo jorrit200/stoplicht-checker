@@ -43,6 +43,7 @@ export class ZMQSubCheckerBinder {
         resultOutput: (conclusion: TopicMessageConclusion) => void
     } = {resultOutput: console.log}) {
         this.sub.subscribe(...this.bindings.keys())
+        console.log("Subscribed to: ", ...this.bindings.keys())
 
         for await (const [topic, msg] of this.sub) {
             const topicStr = topic.toString()
