@@ -14,14 +14,14 @@ const manyOfFormat = <T>(set: T[]): (val: T[]) => void => {
 }
 
 export const config = convict({
-    simulation: {
+    simulator: {
         port: {
             doc: 'The port at which the regression checker accepts simulation messages.',
             format: 'port',
             default: 5551,
             env: 'SIMULATION_PORT'
         },
-        ip: {
+        host: {
             doc: 'The IP at which the regression checker accepts simulation messages.',
             format: 'ipaddress',
             default: '127.0.0.1',
@@ -41,7 +41,7 @@ export const config = convict({
             default: 5552,
             env: 'CONTROLLER_PORT'
         },
-        ip: {
+        host: {
             doc: 'The IP at which the regression checker accepts controller messages.',
             format: 'ipaddress',
             default: '127.0.0.1',
