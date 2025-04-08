@@ -1,13 +1,18 @@
 ﻿import {TopicMessageConclusion} from "../Service/ZMQSubCheckerBinder";
 import {promises as fs} from 'fs';
 import * as path from 'path';
+import {config} from "../Config/conf";
 
 /**
- * Takes message conclusions, and writes MarkdDownFiles
+ * Takes message conclusions, and writes MarkDownFiles
  * @param conclusion Passed by binder.
  */
 export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion): Promise<void> => {
-    const output = `./output/${conclusion.topic}/${conclusion.timestamp}.md`
+    if (conclusion.results.every((r) => {r.result.isOk}) && !config.get('output.log_perfect_messages')) {
+        return
+    }
+
+    const output = `${config.get('output.dir')}/${conclusion.topic}/${conclusion.timestamp}.md`
     const outputDir = path.dirname(output);
 
     await fs.mkdir(outputDir, {recursive: true});
@@ -80,6 +85,7 @@ export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion
             );
         }
         await fs.appendFile(output, '\n\n')
+
     }
 }
 

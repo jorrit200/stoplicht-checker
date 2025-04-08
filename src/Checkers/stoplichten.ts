@@ -3,6 +3,12 @@ import {Traffic} from "../Service/Traffic";
 import {useTraffic} from "./modefiers";
 
 
+/**
+ * Adds some checks to the "stoplichten" topic to ensure that messages with this topic adhere to the protocol:
+ * https://github.com/jorrit200/stoplicht-communicatie-spec/tree/main/topics/stoplichten
+ * @param binder The binder to add the checks to
+ * @param traffic The traffic data to base some checks on.
+ */
 export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic: Traffic) => {
     binder.bind("stoplichten", {
         name: "Stoplicht ID formaat",
@@ -42,17 +48,17 @@ export const bindStoplichtTopicProtocol = (binder: ZMQSubCheckerBinder, traffic:
 
 
 export const trafficLightIdFormat = (message: any): TopicCheckerResult => {
-    const idPattern = /^[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/;
+    const result = new TopicCheckerResult();
 
-    let result = new TopicCheckerResult();
+    const idPattern = /^[a-zA-Z0-9]+\.[a-zA-Z0-9]+$/;
 
     const messageKeysLength = Object.keys(message).length
 
-    for (const key in message) {
-        if (!idPattern.test(key)) {
-            result.fail(`key: ${key} voldoet niet aan het 'g.l' format. Waar 'g' voor group staat en 'l' voor lane`);
-        }
-    }
+    Object.keys(message)
+        .filter(key => !idPattern.test(key))
+        .forEach(key => {
+            result.fail(`key: ${key} voldoet niet aan het 'g.l' format. Waar 'g' voor group staat en 'l' voor lane`)
+        })
 
     if (result.feedback.length > messageKeysLength / 2) {
         result.collapseFeedback(["De meeste keys voldoen niet aan het 'g.l' format. Waar 'g' voor group staat en 'l' voor lane."]);
@@ -61,17 +67,17 @@ export const trafficLightIdFormat = (message: any): TopicCheckerResult => {
 }
 
 const allTrafficlightStatesAreValid = (message: { [key: string]: "rood" | "groen" | "oranje" }): TopicCheckerResult => {
+    const result = new TopicCheckerResult();
+
     const validStates = ["groen", "oranje", "rood"];
-    let result = new TopicCheckerResult();
 
     const messageKeyLength = Object.keys(message).length;
-    for (const key in message) {
-        const value = message[key];
-        const pass = validStates.includes(value);
-        if (!pass) {
+
+    Object.entries(message)
+        .filter(([_, value]) => !validStates.includes(value))
+        .forEach(([key, value]) => {
             result.fail(`Key: ${key} Value: ${value} is niet één van ["rood", "oranje", "groen"]. Check voor spelfouten en NL/EN.`)
-        }
-    }
+        })
 
     if (result.feedback.length > (messageKeyLength / 2)) {
         result.collapseFeedback(['De meeste values zijn niet één van ["rood", "oranje", "groen"]).'])
@@ -84,40 +90,39 @@ const allTrafficlightStatesAreValid = (message: { [key: string]: "rood" | "groen
     return result;
 }
 
-export const allIncludedIdsAreKnown = (message: {
-    [key: string]: any
-}, traffic: Traffic): TopicCheckerResult => {
-    let result = new TopicCheckerResult();
+export const allIncludedIdsAreKnown = (message: Record<string, any>, traffic: Traffic): TopicCheckerResult => {
+    const result = new TopicCheckerResult();
 
-    const messageKeyLength = Object.keys(message).length;
+    let keys = Object.keys(message);
     const acknowledgedTrafficLightKeys = traffic.getAllIds()
-    for (const key in message) {
-        if (!acknowledgedTrafficLightKeys.includes(key)) {
+
+    keys.filter(key => !acknowledgedTrafficLightKeys.includes(key))
+        .forEach(key => {
             result.fail(`Key: ${key} wordt niet erkend als een bestaand stoplicht volgens het protocol.`)
-        }
-    }
-    if (result.feedback.length > messageKeyLength / 2) {
+        })
+
+    if (result.feedback.length > keys.length / 2) {
         result.collapseFeedback(["De meeste meegegeven keys worden niet erkend als bestaande stoplichten volgens het protocol."])
     }
-    if (result.feedback.length == messageKeyLength) {
+    if (result.feedback.length == keys.length) {
         result.collapseFeedback(["Geen één van de meegegeven keys wordt erkend als een bestaand stoplicht volgens het protocol"])
     }
     return result
 }
 
 export const allKnownIdsAreIncluded = (
-    message: { [key: string]: any },
+    message: Record<string, any>,
     traffic: Traffic
 ): TopicCheckerResult => {
-    let result = new TopicCheckerResult();
+    const result = new TopicCheckerResult();
 
     const acknowledgedTrafficLightKeys = traffic.getAllIds()
     const messageKeys = Object.keys(message);
-    for (const key of acknowledgedTrafficLightKeys) {
-        if (!messageKeys.includes(key)) {
-            result.fail(`Het stoplicht id: '${key}' is niet mee gegeven in het het bericht. Het protocol eist dat alle berichten de volledige staat van de toppic beschrijven, dus moet elk erkend stoplicht ID meegegeven worden.`)
-        }
-    }
+
+    const missingKeys = acknowledgedTrafficLightKeys.filter(key => !messageKeys.includes(key))
+    missingKeys.forEach(key => {
+        result.fail(`Het stoplicht id: '${key}' is niet mee gegeven in het het bericht. Het protocol eist dat alle berichten de volledige staat van de toppic beschrijven, dus moet elk erkend stoplicht ID meegegeven worden.`)
+    })
 
     if (result.feedback.length > acknowledgedTrafficLightKeys.length / 2) {
         result.collapseFeedback(["De meeste stoplicht ids zijn niet meegegeven. Raadpleeg <a href='https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Brug_verkeerslichten.png'>Brug_verkeerslichten.png</a> en <a href='https://github.com/jorrit200/stoplicht-communicatie-spec/blob/main/assets/Kruispunt_verkeerslichten.png'>Kruispunt_verkeerslichten.png</a> voor een overzicht van de stoplicht ids die erkend worden door het protocol. Het protocol eist dat een bericht de volledige status van een topic bevat, dus moeten al deze ids meegegeven worden als keys."])
@@ -130,16 +135,16 @@ export const allKnownIdsAreIncluded = (
 }
 
 const noIntersectionsBetweenGreenGroups = (
-    message: { [key: string]: "rood" | "groen" | "oranje" },
+    message: Record<string, "rood" | "groen" | "oranje">,
     traffic: Traffic
 ): TopicCheckerResult => {
-    let result = new TopicCheckerResult()
+    const result = new TopicCheckerResult()
 
-    const greens = Object.keys(message)
+    const greenGroups = Object.keys(message)
         .filter(key => message[key] === "groen")
         .map(key => Number.parseInt(key.split('.')[0]))
 
-    const greensUnique = [...new Set(greens)]
+    const greensUnique = [...new Set(greenGroups)]
 
     const greenIntersections = traffic.getIntersects(greensUnique)
     Object.keys(greenIntersections)

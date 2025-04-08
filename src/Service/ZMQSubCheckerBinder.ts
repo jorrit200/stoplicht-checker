@@ -39,12 +39,13 @@ export class ZMQSubCheckerBinder {
      * Start running this binder. (for now there is no way to gracefully stop this...)
      * @param resultOutput a function that takes the results of all tests on a message. Useful for logging results.
      */
-    public async run({resultOutput}: {resultOutput: (conclusion: TopicMessageConclusion) => void} = {resultOutput: console.log}) {
+    public async run({resultOutput}: {
+        resultOutput: (conclusion: TopicMessageConclusion) => void
+    } = {resultOutput: console.log}) {
         this.sub.subscribe(...this.bindings.keys())
+        console.log("Subscribed to: ", ...this.bindings.keys())
 
         for await (const [topic, msg] of this.sub) {
-
-
             const topicStr = topic.toString()
             let msgObj
             let msgStr = msg.toString();
@@ -81,7 +82,7 @@ export class ZMQSubCheckerBinder {
             const resultArr = boundCheckers.map(checker => {
                 return {
                     checker: checker,
-                    result: checker.method(msgObj)
+                    result: this.performCheck(checker.method, msgObj)
                 }
             });
 
@@ -93,6 +94,15 @@ export class ZMQSubCheckerBinder {
             }
 
             resultOutput(conclusion)
+        }
+    }
+
+    private performCheck(checker: (message: {}) => TopicCheckerResult, message: {}) {
+        try {
+            return checker(message)
+        } catch (err) {
+            let exceptionNotice = "Er was een runtime exception tijdens het uitvoeren van deze check. Sommige checks gaan er van uit dat vorige checks gehaald zijn. Dus als andere checks in dit bericht gefaald zijn, los die eerst op, en probeer deze dan weer";
+            return TopicCheckerResult.failed([exceptionNotice, `${err}`])
         }
     }
 }
@@ -137,18 +147,36 @@ export class TopicCheckerResult {
         this._feedback = []
     }
 
-    get isOk() {return this._isOk}
-    get feedback() {return this._feedback}
+    get isOk() {
+        return this._isOk
+    }
 
+    get feedback() {
+        return this._feedback
+    }
+
+    /**
+     * The result is now a failure for the specified reason/feedback.
+     * @param feedback Feedback to add to the failure reasons
+     */
     public fail(feedback: string) {
         this._isOk = false
         this._feedback.push(feedback)
     }
 
+    /**
+     * Simplify all the feedback to the specified feedback
+     * @param newFeedback new feedback array to override the old one
+     */
     public collapseFeedback(newFeedback: string[]) {
         this._feedback = newFeedback
     }
 
+
+    /**
+     * Creates a result in the failed state, with the provided feedback
+     * @param feedback The feedback held by the result.
+     */
     public static failed(feedback: string[]): TopicCheckerResult {
         let instance = new TopicCheckerResult()
         instance._isOk = false
@@ -175,7 +203,7 @@ export interface TopicMessageConclusion {
     /**
      * The results of each individual check.
      */
-    results: {checker: TopicChecker<any>, result: TopicCheckerResult}[],
+    results: { checker: TopicChecker<any>, result: TopicCheckerResult }[],
 
     /**
      * The time at which the message was parsed.

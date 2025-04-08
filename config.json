@@ -1,0 +1,17 @@
+{
+  "simulator": {
+    "port": 5557,
+    "host": "10.121.17.54",
+    "subscribe": ["sensoren_rijbaan"]
+  },
+  "controller": {
+    "port": 5556,
+    "host": "10.121.17.123",
+    "subscribe": ["stoplichten"]
+  },
+  "output": {
+    "dir": "./output",
+    "wipe_on_start": false,
+    "log_perfect_messages": true
+  }
+}
