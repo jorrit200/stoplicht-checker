@@ -12,7 +12,7 @@ import {config} from "../Config/conf";
 export const LogConclusionAsMarkDown = async (conclusion: TopicMessageConclusion): Promise<void> => {
     const output = `./output/${conclusion.topic}/${conclusion.timestamp}_${randomUUID().substring(0, 5)}.md`
     if (
-        conclusion.results.every((r) => {r.result.isOk})
+        conclusion.results.every((r) => r.result.isOk)
         && !config.get('output.log_perfect_messages')
     ) { return; }
     const outputDir = path.dirname(output);
