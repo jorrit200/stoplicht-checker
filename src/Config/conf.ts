@@ -1,6 +1,5 @@
 ﻿import convict from "convict";
 import convict_format_with_validator from "convict-format-with-validator";
-
 convict.addFormat(convict_format_with_validator.ipaddress)
 
 const manyOfFormat = <T>(set: T[]): (val: T[]) => void => {

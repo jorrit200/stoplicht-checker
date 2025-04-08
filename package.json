@@ -27,6 +27,7 @@
   "homepage": "https://github.com/jorrit200/stoplicht-checker#readme",
   "devDependencies": {
     "@types/convict": "^6.1.6",
+
     "@types/convict-format-with-validator": "^6.0.5",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
