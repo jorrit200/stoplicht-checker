@@ -6,6 +6,11 @@ import { bindStoplichtTopicProtocol } from "./Checkers/stoplichten";
 import { Traffic } from "./Service/Traffic";
 import { config } from "./Config/conf";
 import { promises as fs } from "fs";
+import {bindSensorRijbaanTopicProtocol} from "./Checkers/sensoren_rijbaan";
+import {bindSensorSpecialTopicProtocol} from "./Checkers/sensoren_speciaal";
+import {bindTijdTopicProtocol} from "./Checkers/time";
+import {bindVoorrangsvoertuigTopicProtocol} from "./Checkers/voorangsvoertuig";
+import {bindSensorenBruggen} from "./Checkers/sensoren_bruggen_message";
 
 async function setupOutputDirectory() {
     const outputDir = config.get('output.dir');
@@ -48,10 +53,11 @@ async function runApp() {
 
         // Bind protocols
         bindStoplichtTopicProtocol(controllerBinder, traffic);
-        // Uncomment and bind additional protocols as needed:
-        // bindSensorRijbaanTopicProtocol(simulationBinder, traffic);
-        // bindSensorSpecialTopicProtocol(simulationBinder, traffic);
-        // bindTijdTopicProtocol(simulationBinder);
+        bindSensorRijbaanTopicProtocol(simulationBinder, traffic);
+        bindSensorSpecialTopicProtocol(simulationBinder, traffic);
+        bindTijdTopicProtocol(simulationBinder);
+        bindVoorrangsvoertuigTopicProtocol(simulationBinder, traffic);
+        bindSensorenBruggen(simulationBinder)
 
         const controllerTask = controllerBinder.run({
             resultOutput: (conclusion) => {

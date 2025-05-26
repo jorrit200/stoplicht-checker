@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="u"
+                 name="uml"
+                 start-page="starter-topic.md">
+
+    <toc-element topic="starter-topic.md"/>
+    <toc-element topic="overview.md"/>
+    <toc-element topic="checker-implementations.md"/>
+    <toc-element topic="recieve-message-sequence.md"/>
+    <toc-element topic="Component-diagram.md"/>
+</instance-profile>
